@@ -1,0 +1,38 @@
+# Aiken compilation artifacts & vendored stdlib build tree
+artifacts/
+build/
+
+# Do not ignore ./docs/ — project technical documentation lives there (Aiken default
+# doc export path is configurable; use a subfolder if you add generated API docs).
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+
+# AI / agent tooling (Cursor, Claude Code, Windsurf, etc.) — keep local only
+.cursor/
+**/.cursor/
+.cursorrules
+.cursorignore
+**/.adal/
+**/.agent/
+**/.agents/
+**/.claude/
+**/.windsurf/
+**/.codex/
+.aider*
+.aider.chat.history.md
+
+# Frontend skill artifacts
+preipo-frontend/skills-lock.json
+preipo-frontend/.*/skills/
+preipo-frontend/**/skills/
+preipo-frontend/**/SKILL.md
+@skills/
+**/@skills/

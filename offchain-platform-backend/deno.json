@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["deno.window", "deno.unstable"]
+  },
+  "tasks": {
+    "serve": "deno run -A main.ts",
+    "serve:emulator": "PREIPO_USE_EMULATOR=1 deno run -A main.ts",
+    "serve:preprod": "PREIPO_USE_PREPROD=1 deno run -A main.ts",
+    "test": "deno run -A scripts/integration-test.ts"
+  },
+  "imports": {
+    "hono": "npm:hono@4.6.16",
+    "hono/cors": "npm:hono@4.6.16/cors"
+  }
+}

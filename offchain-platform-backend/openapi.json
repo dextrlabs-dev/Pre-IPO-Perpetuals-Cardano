@@ -1,0 +1,418 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Pre-IPO Perps Off-Chain API",
+    "version": "1.0.0",
+    "description": "REST wrapper around `cli/preipo-evo-core.ts` (lock, oracle, swap, mint, redeem). On-chain datum uses μ-units (scale 1e6) for prices, collateral, and reserves; the API surfaces this as USDCx for display. Wallet USDCx for demos is tracked in a server-side faucet (`POST /api/v1/faucet/usdcx`); mint debits and redeem credits that ledger. Use string fields for bigint-sized values. Set `PREIPO_USE_EMULATOR=1` or `PREIPO_USE_PREPROD=1` when starting the server."
+  },
+  "servers": [{ "url": "/", "description": "Local" }],
+  "tags": [
+    { "name": "health", "description": "Liveness" },
+    { "name": "meta", "description": "Chain / script info" },
+    { "name": "markets", "description": "Per-index flows" },
+    { "name": "ventuals", "description": "Aggregated Ventuals + chain view (trader UI)" }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["health"],
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "ok": { "type": "boolean" } }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "summary": "OpenAPI document",
+        "responses": { "200": { "description": "Spec" } }
+      }
+    },
+    "/api/v1/ventuals/markets": {
+      "get": {
+        "tags": ["ventuals"],
+        "summary": "Three Ventuals markets: chain datum + HL candle close + USDCx display fields",
+        "responses": {
+          "200": {
+            "description": "Markets array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "markets": { "type": "array", "items": { "type": "object" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/meta": {
+      "get": {
+        "tags": ["meta"],
+        "summary": "Script address and env hints",
+        "responses": {
+          "200": {
+            "description": "Metadata",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MetaResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/markets/{marketId}/state": {
+      "get": {
+        "tags": ["markets"],
+        "summary": "Parse market state from a script UTxO created by spendTx",
+        "parameters": [
+          {
+            "name": "marketId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "spendTx",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Transaction hash that last paid to the script for this chain"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StateResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad request" }
+        }
+      }
+    },
+    "/api/v1/account": {
+      "get": {
+        "tags": ["meta"],
+        "summary": "Operator wallet address, lovelace, and USDCx faucet balance",
+        "responses": {
+          "200": {
+            "description": "Account snapshot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "address": { "type": "string" },
+                    "lovelace": { "type": "string" },
+                    "usdcxBalance": { "type": "string" },
+                    "usdcxDisplay": { "type": "string" },
+                    "assets": { "type": "object", "additionalProperties": true },
+                    "note": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "500": { "description": "Server error" }
+        }
+      }
+    },
+    "/api/v1/faucet/usdcx": {
+      "post": {
+        "tags": ["markets"],
+        "summary": "Credit USDCx on the demo faucet ledger for the operator wallet",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amountUnits": {
+                    "type": "string",
+                    "description": "Credit in μ-USDCx (scale 1e6)"
+                  },
+                  "amountUsdcx": {
+                    "type": "number",
+                    "description": "Whole USDCx (converted to μ-units)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Credited",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean" },
+                    "creditedUnits": { "type": "string" },
+                    "usdcxBalance": { "type": "string" },
+                    "usdcxDisplay": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Bad request" }
+        }
+      }
+    },
+    "/api/v1/markets/{marketId}/lock": {
+      "post": {
+        "tags": ["markets"],
+        "summary": "Lock initial market UTxO at script address",
+        "parameters": [
+          {
+            "name": "marketId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LockBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TxResponse" }
+              }
+            }
+          },
+          "400": { "description": "Bad request" },
+          "500": { "description": "Submit error" }
+        }
+      }
+    },
+    "/api/v1/markets/{marketId}/oracle": {
+      "post": {
+        "tags": ["markets"],
+        "summary": "Oracle price update (signed by publisher)",
+        "parameters": [
+          {
+            "name": "marketId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/OracleBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TxResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/markets/{marketId}/swap": {
+      "post": {
+        "tags": ["markets"],
+        "summary": "Constant-product pool swap (datum reserves)",
+        "parameters": [
+          {
+            "name": "marketId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SwapBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TxResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/markets/{marketId}/mint": {
+      "post": {
+        "tags": ["markets"],
+        "summary": "Mint (increases vtoken_supply; updates datum collateral; debits USDCx faucet)",
+        "parameters": [
+          {
+            "name": "marketId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/MintBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TxResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/markets/{marketId}/redeem": {
+      "post": {
+        "tags": ["markets"],
+        "summary": "Redeem (burn vtoken; updates datum collateral; credits USDCx faucet)",
+        "parameters": [
+          {
+            "name": "marketId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RedeemBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TxResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TxResponse": {
+        "type": "object",
+        "required": ["txHash", "explorerUrl"],
+        "properties": {
+          "txHash": { "type": "string" },
+          "explorerUrl": { "type": "string" },
+          "marketId": { "type": "string" }
+        }
+      },
+      "MetaResponse": {
+        "type": "object",
+        "properties": {
+          "contractAddress": { "type": "string" },
+          "preprod": { "type": "boolean" },
+          "emulator": { "type": "boolean" }
+        }
+      },
+      "StateResponse": {
+        "type": "object",
+        "properties": {
+          "trader": { "type": "string" },
+          "operator": { "type": "string" },
+          "market": { "type": "object", "additionalProperties": true }
+        }
+      },
+      "LockBody": {
+        "type": "object",
+        "properties": {
+          "lovelace": { "type": "string", "default": "25000000" },
+          "price": { "type": "string", "default": "1000000" },
+          "reserveA": { "type": "string", "default": "10000000" },
+          "reserveB": { "type": "string", "default": "10000000" }
+        }
+      },
+      "OracleBody": {
+        "type": "object",
+        "properties": {
+          "spendTx": {
+            "type": "string",
+            "description": "Optional if session lastTx is set server-side"
+          },
+          "newPrice": {
+            "type": "string",
+            "description": "Absolute new current_price (integer string)"
+          },
+          "bumpBps": {
+            "type": "integer",
+            "description": "If set and newPrice omitted: newPrice = floor(old * bumpBps / 10000). Example 10100 = +1%"
+          }
+        }
+      },
+      "SwapBody": {
+        "type": "object",
+        "required": ["sellA", "amountIn"],
+        "properties": {
+          "spendTx": { "type": "string" },
+          "sellA": { "type": "integer", "enum": [0, 1] },
+          "amountIn": { "type": "string" }
+        }
+      },
+      "MintBody": {
+        "type": "object",
+        "required": ["quantity"],
+        "properties": {
+          "spendTx": { "type": "string" },
+          "quantity": { "type": "string" }
+        }
+      },
+      "RedeemBody": {
+        "type": "object",
+        "required": ["quantity"],
+        "properties": {
+          "spendTx": { "type": "string" },
+          "quantity": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,196 @@
+{
+  "preamble": {
+    "title": "samjefree/pre-ipo-perps",
+    "description": "Aiken contracts for project 'samjefree/pre-ipo-perps'",
+    "version": "0.0.0",
+    "plutusVersion": "v2",
+    "compiler": {
+      "name": "Aiken",
+      "version": "v1.0.29-alpha+16fb02e"
+    },
+    "license": "Apache-2.0"
+  },
+  "validators": [
+    {
+      "title": "preipo.preipo",
+      "datum": {
+        "title": "data",
+        "schema": {
+          "$ref": "#/definitions/preipo~1PerpDatum"
+        }
+      },
+      "redeemer": {
+        "title": "redeemer",
+        "schema": {
+          "$ref": "#/definitions/preipo~1PerpRedeemer"
+        }
+      },
+      "compiledCode": "590b6a0100003232323232323223232323232232322533300b3232533300d3009300e375400226464a66601e601a60206ea80044c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c94c8c8ccc084c07c02c4c8c94ccc08cc084c090dd5000899191919191929998149980a0030040a9998148028a9998148020a9998148018a9998148010a9998148008a999814980b0040a99981498051ba6017133011301c302b375403e6eb8c054c0acdd50040a5014a029405280a5014a02940528299981418131bad300a302a375400a266e1cdd6980c18151baa007375a603a60546ea801c4cdc39bad3018302a375400e66e0ccdc019b82375a603060546ea80152012375a603a60546ea801d20145333027337126eb4c070c0a4dd50022400029404cdc499b82300e337026eb4c070c0a4dd50031bad301c3029375400890504e0099b82482807cdd6980e18149baa00453330263024375a601060506ea800c528899b89337006eb4c030c0a0dd5001a41a01e6eb4c030c0a0dd5002a99981299b87375a6010604e6ea8010dd6980418139baa002153330253370e6eb4c024c09cdd50021bad3009302737540042a66604a66e1cdd6980518139baa004375a6014604e6ea80084cdc39bad300e302737540086eb4c038c09cdd50010a5014a02940cdc39bad30063026375400660086eb4c018c098dd5000981418129baa00116301230243754042604c60466ea806854c8ccc088c0780304c8c94ccc090c088c094dd500089919191919191929998159980b0038048a9998158030a9998158008a9998158018a9998158010a99981598061ba60191533302b3018009133013301e302d37540426eb8c078c0b4dd50150a5014a029405280a5014a029414ccc0a8c0240104cdc39bad300d302c375401000629414ccc0a4cdc39bad301e302b375400e6eb4c078c0acdd50028a99981499b87375a603260566ea801cdd6980c98159baa00513370e6eb4c03cc0acdd50039bad300f302b375400a2940528299981419b87375a601a60546ea8018dd6980698151baa00413370e6eb4c044c0a8dd50031bad3011302a37540082940cdc01bad300a3029375400666e0ccdc10009bad301730293754006904044bd19b81375a601460506ea8010dd6980518141baa0023370e6eb4c01cc09cdd500198029bad3007302737540026052604c6ea800458c04cc094dd5011181398121baa01b15333022301a00c132325333024302230253754002264646464646464a6660566602c00e0122a66605600c2a6660560022a6660560062a6660560042a66605660186e9806454ccc0acc0600244cc04cc078c0b4dd50109bae301e302d375405429405280a5014a029405280a50533302a300900413370e6eb4c034c0b0dd50040018a5053330293370e6eb4c078c0acdd50039bad301e302b375400a2a66605266e1cdd6980c98159baa007375a603260566ea80144cdc39bad300f302b375400e6eb4c03cc0acdd50028a5014a0a66605066e1cdd6980698151baa006375a601a60546ea80104cdc39bad3011302a375400c6eb4c044c0a8dd50020a50337026eb4c028c0a4dd500199b83337040026eb4c05cc0a4dd5001a410112f466e04dd6980518141baa002375a601460506ea8010cdc39bad300730273754006600a6eb4c01cc09cdd5000981498131baa00116301330253754044604e60486ea806c4c8c8c8c8c8c8c8c94ccc0a8c0a0c0acdd50008991919191919191929998191980e8040050a9998190038a9998190030a9998190028a9998190020a9998190018a9998190008a99981918099ba602015333032301f00a13301a3025303437540506eb8c094c0d0dd50188a5014a029405280a5014a029405280a505333031337126eb4c084c0ccdd5003a400029404cdc499b823018337020026eb4c084c0ccdd5003a4141380266e09208827375a604260666ea801ccc894ccc0c8cdc48012400029000099b8333704002904044bd0011bad3015303237540106eb4c064c0c8dd500429998179815806099299981819b890014800052809919299981919b87375a602e60686ea802800c54ccc0c8cdc39bad301b30343754014002266e2402c0085280a50337026eb4c068c0ccdd500380099b83337046eb4c064c0c8dd500300580099b80375a602860626ea801402854ccc0bcc0b40304c94ccc0c0cdc4800a400029404c94ccc0c4cdc39bad30163033375401266e04dd6980b18199baa007001153330313370e6eb4c068c0ccdd5004801099b8900a00114a02940cdc199b82375a602a60646ea801802c004cdc01bad30183031375400a0142940c0340254ccc0b4cdc39bad3022302f375400a6eb4c088c0bcdd50018a99981699b87375a603a605e6ea8014dd6980e98179baa00313370e6eb4c04cc0bcdd50029bad3013302f37540062940528299981619b87375a601e605c6ea8010dd6980798171baa00213370e6eb4c040c0b8dd50021bad3010302e37540042940cdc39bad300d302d375400660166eb4c034c0b4dd5000981798161baa001163019302b3754050605a605c0046eb4c0b0004c0b0008dd6981500098150011bad3028001302437540366e212000370090011baf374c6eacc050c084dd5180a18109baa010230243025302530253025302530253025302530250012302330243024302430243024001230223023302330233023302330230012302130223022302230223022302230220012302030213021302130210012533301a337100029000099b8148000004400488c8cc004004dd61802180e9baa00322533301f00114a0264a66603a66e3cdd718110010020a5113300300300130220012301d301e301e301e301e301e301e301e301e0013017375401e44a66602e66e3cdd71805180c9baa001375c601460326ea80084cdc79bae3003301937540026eb8c00cc064dd50010a502301a301b301b301b0012325333015300d3016375400226464a66602e66e3cdd71805180c9baa016375c601460326ea800854ccc05ccdc79bae300c3019375402c6eb8c030c064dd5001099baf3374a90001980d80225eb80c01cc064dd50010a5014a060220026034602e6ea800458c010c058dd528019bab300730143754a00226464a66602c603200420022c602e00264660020026eb0c008c050dd51802980a1baa00822533301600114bd7009919299980a99baf3008301737540046010602e6ea8c028c05cdd500309980c80119802002000899802002000980d001180c0009180b180b980b800980a18089baa001163322323300100100322533301500114c103d87a80001323253330143375e600e602c6ea80080144cdd2a40006603000497ae0133004004001301900230170013758600260206ea8c004c040dd5002180998081baa00223013001163001300e375400446022602400229309b2b1929998051804000899192999807980900109924c60120022c602000260186ea800c54ccc028c0180044c8c94ccc03cc0480084c9263009001163010001300c37540062a666014600400226464a66601e60240042649318048008b180800098061baa0031533300a3370e900300089919191919191919299980a980c00109924c601e0022c602c002602c0046eb4c050004c050008dd6980900098090011bad3010001300c37540062c60146ea8008dc3a4008600200a4a66600c6008600e6ea80044c8c8c8c8c8c94ccc03cc0480084c92632533300d300b0011323253330123015002132498c03000458c04c004c03cdd50010a99980698048008a99980818079baa00214985858c034dd50008b180800098080011bae300e001300e002375c601800260106ea800458dc3a40044a6660086004600a6ea80044c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c94ccc06cc07800852616375a603800260380046eb4c068004c068008dd6980c000980c0011bad30160013016002375a602800260280046eb4c048004c048008dd7180800098080011bad300e001300e002375a601800260180046eb8c028004c018dd50008b1b87480015cd2ab9d5573caae7d5d02ba157441",
+      "hash": "ca795c5a53c57011e956e7b51c7f3944a273540bde419fc4ca040d3e"
+    }
+  ],
+  "definitions": {
+    "ByteArray": {
+      "dataType": "bytes"
+    },
+    "Int": {
+      "dataType": "integer"
+    },
+    "Option$preipo/MarketState": {
+      "title": "Optional",
+      "anyOf": [
+        {
+          "title": "Some",
+          "description": "An optional value.",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "$ref": "#/definitions/preipo~1MarketState"
+            }
+          ]
+        },
+        {
+          "title": "None",
+          "description": "Nothing.",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": []
+        }
+      ]
+    },
+    "preipo/MarketState": {
+      "title": "MarketState",
+      "description": "Single-market datum: oracle + USDCx vault accounting + pool reserves (one UTxO per market).",
+      "anyOf": [
+        {
+          "title": "MarketState",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "index_id",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "current_price",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "twav_price",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "publisher_keyset_hash",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "last_oracle_time",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "collateral_locked",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "vtoken_supply",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "reserve_a",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "reserve_b",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "seq",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
+    },
+    "preipo/PerpDatum": {
+      "title": "PerpDatum",
+      "anyOf": [
+        {
+          "title": "PerpDatum",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "trader",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "operator",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "market",
+              "$ref": "#/definitions/Option$preipo~1MarketState"
+            }
+          ]
+        }
+      ]
+    },
+    "preipo/PerpRedeemer": {
+      "title": "PerpRedeemer",
+      "description": "One validator: Oracle | Collateral mint/redeem | Pool swap (Mesh/Lucid off-chain).",
+      "anyOf": [
+        {
+          "title": "Oracle",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "$ref": "#/definitions/preipo~1MarketState"
+            }
+          ]
+        },
+        {
+          "title": "Mint",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": [
+            {
+              "$ref": "#/definitions/preipo~1MarketState"
+            }
+          ]
+        },
+        {
+          "title": "Redeem",
+          "dataType": "constructor",
+          "index": 2,
+          "fields": [
+            {
+              "$ref": "#/definitions/preipo~1MarketState"
+            }
+          ]
+        },
+        {
+          "title": "Swap",
+          "description": "sell_a: 1 = sell A for B, 0 = sell B for A; amount_in, min_out; next state carries new reserves.",
+          "dataType": "constructor",
+          "index": 3,
+          "fields": [
+            {
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "$ref": "#/definitions/preipo~1MarketState"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
