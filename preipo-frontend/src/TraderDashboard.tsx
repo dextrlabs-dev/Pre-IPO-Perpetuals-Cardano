@@ -619,7 +619,8 @@ export function TraderDashboard({ page }: { page: TraderPage }) {
                         ? Math.max(0, Math.floor(estTokens * 1_000_000))
                         : 0;
                       const qtyBig = BigInt(qty);
-                      const needAda = qty * perUnitAda;
+                      const qtyTokens = qty / 1_000_000;
+                      const needAda = qtyTokens * perUnitAda;
                       const needLovelace = lovelaceFromAda(needAda);
                       const walletAda = parseBig(account?.usdcxBalance ?? "0") ?? 0n;
                       return busy || qtyBig <= 0n || needLovelace == null ||
@@ -640,15 +641,16 @@ export function TraderDashboard({ page }: { page: TraderPage }) {
                       const pxAdaRaw = mkt?.displayUsdcx;
                       const pxUsdRaw = mkt?.displayUsd;
                       const qtyNum = Number(qty);
+                      const qtyTokens = qtyNum / 1_000_000;
                       const pxAdaNum = parseDisplayNumber(pxAdaRaw);
                       const pxUsdNum = parseDisplayNumber(pxUsdRaw);
                       const estAda =
-                        isFiniteNumber(qtyNum) && isFiniteNumber(pxAdaNum)
-                          ? qtyNum * pxAdaNum
+                        isFiniteNumber(qtyTokens) && isFiniteNumber(pxAdaNum)
+                          ? qtyTokens * pxAdaNum
                           : null;
                       const estUsd =
-                        isFiniteNumber(qtyNum) && isFiniteNumber(pxUsdNum)
-                          ? qtyNum * pxUsdNum
+                        isFiniteNumber(qtyTokens) && isFiniteNumber(pxUsdNum)
+                          ? qtyTokens * pxUsdNum
                           : null;
                       pushLog(
                         "ok",
