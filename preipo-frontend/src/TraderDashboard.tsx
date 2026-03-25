@@ -33,11 +33,6 @@ function parseBig(v?: string): bigint | null {
   }
 }
 
-function formatInt(v: bigint | null): string {
-  if (v == null) return "—";
-  return v.toLocaleString();
-}
-
 function formatWholeTokens(units: bigint | null): string {
   if (units == null) return "—";
   const whole = Number(units) / Number(TOKEN_SCALE);
@@ -49,6 +44,16 @@ function formatAdaFromLovelace(v: bigint | null): string {
   return `${(Number(v) / 1_000_000).toLocaleString(undefined, {
     maximumFractionDigits: 6,
   })} USDCx`;
+}
+
+function formatUsdFromUsdcxUnits(v: bigint | null): string {
+  if (v == null) return "—";
+  const usd = Number(v) / 1_000_000;
+  return `$${usd.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+}
+
+function formatSwapAmount(v: bigint | null, isUsdcxSide: boolean): string {
+  return isUsdcxSide ? formatUsdFromUsdcxUnits(v) : formatWholeTokens(v);
 }
 
 function lovelaceFromAda(ada: number): bigint | null {
@@ -94,11 +99,21 @@ function perUnitFromOracle(row: VentualsMarketRow): {
   };
 }
 
+/** Raw on-chain amounts: USDCx leg = human USDCx → micro; token leg = whole tokens → micro. */
+function swapAmountInMicro(sellA: 0 | 1, raw: string): bigint | null {
+  const s = raw.replaceAll(",", "").trim();
+  if (!s) return null;
+  const n = Number(s);
+  if (!isFiniteNumber(n) || n < 0) return null;
+  if (sellA === 1) return lovelaceFromAda(n);
+  return BigInt(Math.max(0, Math.floor(n * 1_000_000)));
+}
+
 function swapQuote(row: VentualsMarketRow, sellA: 0 | 1, amountInRaw: string) {
   const m = row.market;
   const reserveA = parseBig(m?.reserve_a);
   const reserveB = parseBig(m?.reserve_b);
-  const amountIn = parseBig(amountInRaw);
+  const amountIn = swapAmountInMicro(sellA, amountInRaw);
   const inIsA = sellA === 1;
   const reserveIn = inIsA ? reserveA : reserveB;
   const reserveOut = inIsA ? reserveB : reserveA;
@@ -110,6 +125,7 @@ function swapQuote(row: VentualsMarketRow, sellA: 0 | 1, amountInRaw: string) {
   return {
     amountIn,
     amountOut,
+    inIsA,
     inLabel,
     outLabel,
     inAda,
@@ -136,9 +152,9 @@ export function TraderDashboard({ page }: { page: TraderPage }) {
     spacex: 1,
   });
   const [swapAmt, setSwapAmt] = useState<Record<string, string>>({
-    anthropic: "8000",
-    openai: "8000",
-    spacex: "8000",
+    anthropic: "0.008",
+    openai: "0.008",
+    spacex: "0.008",
   });
   const [mintAda, setMintAda] = useState<Record<string, string>>({
     anthropic: "",
@@ -452,12 +468,21 @@ export function TraderDashboard({ page }: { page: TraderPage }) {
                       </select>
                     </div>
                     <div>
-                      <label htmlFor={`am-${row.id}`}>amountIn</label>
+                      <label htmlFor={`am-${row.id}`}>
+                        {(swapSellA[row.id] ?? 1) === 1
+                          ? "USDCx amount"
+                          : "Token amount (whole)"}
+                      </label>
                       <input
                         id={`am-${row.id}`}
                         className="mono"
                         value={swapAmt[row.id] ?? ""}
                         disabled={busy}
+                        placeholder={
+                          (swapSellA[row.id] ?? 1) === 1
+                            ? "e.g. 100.5 USDCx"
+                            : "e.g. 1.25 tokens"
+                        }
                         onChange={(e) =>
                           setSwapAmt((s) => ({ ...s, [row.id]: e.target.value }))
                         }
@@ -477,21 +502,23 @@ export function TraderDashboard({ page }: { page: TraderPage }) {
                   const canSwap = sellA === 1
                     ? amountIn > 0n && amountIn <= walletAda
                     : amountIn > 0n && amountIn <= tokenBal;
+                  const inIsUsdcx = q.inIsA;
+                  const outIsUsdcx = !q.inIsA;
                     return (
                       <p className="trader-hint trader-quote">
                         You sell{" "}
                         <span className="mono">
-                          {formatInt(q.amountIn)} {q.inLabel}
+                          {formatSwapAmount(q.amountIn, inIsUsdcx)} {q.inLabel}
                         </span>{" "}
                         and receive about{" "}
                         <span className="mono">
-                          {formatInt(q.amountOut)} {q.outLabel}
+                          {formatSwapAmount(q.amountOut, outIsUsdcx)} {q.outLabel}
                         </span>
                         .{" "}
                       {q.inAda
-                          ? `Input value: ${q.inAda}.`
+                          ? `Input value: ${formatUsdFromUsdcxUnits(q.amountIn)}.`
                           : q.outAda
-                          ? `Estimated receive value: ${q.outAda}.`
+                          ? `Estimated receive value: ${formatUsdFromUsdcxUnits(q.amountOut)}.`
                         : "Add reserves + amount to calculate estimate."}{" "}
                       {!canSwap && "Insufficient balance for this swap."}
                       </p>
@@ -516,25 +543,37 @@ export function TraderDashboard({ page }: { page: TraderPage }) {
                   })()}
                     onClick={() => {
                       const sellA = swapSellA[row.id] ?? 1;
-                      const amountIn = swapAmt[row.id] ?? "0";
-                      const q = swapQuote(row, sellA, amountIn);
-                    const inAmt = q.amountIn ?? 0n;
-                    const outAmt = q.amountOut ?? 0n;
-                    const walletAda = parseBig(account?.usdcxBalance ?? "0") ?? 0n;
-                    const tokenBal = sessionBal[row.id]?.token ?? 0n;
-                    const valid = sellA === 1
-                      ? inAmt > 0n && outAmt > 0n && inAmt <= walletAda
-                      : inAmt > 0n && outAmt > 0n && inAmt <= tokenBal;
-                    if (!valid) {
-                      pushLog("err", `[${row.label}] Swap blocked: insufficient balance or invalid amount.`);
-                      return;
-                    }
+                      const raw = swapAmt[row.id] ?? "0";
+                      const q = swapQuote(row, sellA, raw);
+                      const inAmt = q.amountIn ?? 0n;
+                      const outAmt = q.amountOut ?? 0n;
+                      const walletAda =
+                        parseBig(account?.usdcxBalance ?? "0") ?? 0n;
+                      const tokenBal = sessionBal[row.id]?.token ?? 0n;
+                      const valid =
+                        sellA === 1
+                          ? inAmt > 0n &&
+                            outAmt > 0n &&
+                            inAmt <= walletAda
+                          : inAmt > 0n &&
+                            outAmt > 0n &&
+                            inAmt <= tokenBal;
+                      if (!valid) {
+                        pushLog(
+                          "err",
+                          `[${row.label}] Swap blocked: insufficient balance or invalid amount.`,
+                        );
+                        return;
+                      }
+                      const amountInOnChain = String(inAmt);
+                      const inIsUsdcx = q.inIsA;
+                      const outIsUsdcx = !q.inIsA;
                       pushLog(
                         "ok",
-                        `[${row.label}] Swap request: sell ${formatInt(q.amountIn)} ${q.inLabel} -> est. receive ${formatInt(q.amountOut)} ${q.outLabel}${q.inAda ? ` | input ${q.inAda}` : ""}${q.outAda ? ` | receive ~${q.outAda}` : ""}`,
+                        `[${row.label}] Swap request: sell ${formatSwapAmount(q.amountIn, inIsUsdcx)} ${q.inLabel} -> est. receive ${formatSwapAmount(q.amountOut, outIsUsdcx)} ${q.outLabel}${q.inAda ? ` | input ${formatUsdFromUsdcxUnits(q.amountIn)}` : ""}${q.outAda ? ` | receive ~${formatUsdFromUsdcxUnits(q.amountOut)}` : ""}`,
                       );
                       setSessionBal((prev) => {
-                      const cur = prev[row.id] ?? { token: 0n };
+                        const cur = prev[row.id] ?? { token: 0n };
                         return {
                           ...prev,
                           [row.id]:
@@ -550,7 +589,7 @@ export function TraderDashboard({ page }: { page: TraderPage }) {
                       void run(row.id, "Swap", () =>
                         postSwap(row.id, {
                           sellA,
-                          amountIn,
+                          amountIn: amountInOnChain,
                         }),
                       );
                     }}
