@@ -1,0 +1,7 @@
+{
+  "nodeModulesDir": "auto",
+  "tasks": {
+    "render-pdf": "deno run -A docs/render-pdf.ts",
+    "render-closeout-pdfs": "deno run -A docs/render-closeout-pdfs.ts"
+  }
+}

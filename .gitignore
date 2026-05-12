@@ -36,3 +36,5 @@ preipo-frontend/**/skills/
 preipo-frontend/**/SKILL.md
 @skills/
 **/@skills/
+node_modules/
+deno.lock
