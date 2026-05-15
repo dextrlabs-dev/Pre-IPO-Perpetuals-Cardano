@@ -69,13 +69,30 @@ const STYLE = `
   @media print { body { max-width: 100%; } h2 { break-after: avoid; } pre { break-inside: avoid; } }
 `;
 
-async function renderMarkdownToPdf(mdPath: string, outPdf: string, title: string, browser: any) {
+const COMPACT_STYLE = `
+  body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; max-width: 100%; margin: 0; padding: 0 6px; line-height: 1.32; color: #111; font-size: 9.5pt; }
+  h1 { font-size: 1.45rem; margin: 0 0 0.25em; border-bottom: 1.5px solid #333; padding-bottom: 0.15em; }
+  h2 { font-size: 1.05rem; margin: 0.85em 0 0.25em; border-bottom: 1px solid #ccc; padding-bottom: 0.1em; }
+  h3 { font-size: 0.98rem; margin: 0.6em 0 0.15em; }
+  p, ul, ol { margin: 0.25em 0; }
+  ul, ol { padding-left: 1.1em; }
+  hr { display: none; }
+  table { border-collapse: collapse; width: 100%; margin: 0.4em 0; font-size: 0.92em; }
+  th, td { border: 1px solid #bbb; padding: 3px 6px; text-align: left; vertical-align: top; word-break: break-word; }
+  th { background: #eee; }
+  code { font-family: ui-monospace, "Cascadia Code", monospace; font-size: 0.86em; background: #f4f4f4; padding: 1px 3px; border-radius: 3px; }
+  a { color: #0366d6; word-break: break-all; }
+  @media print { body { max-width: 100%; } h2 { break-after: avoid; } table, tr { break-inside: avoid; } }
+`;
+
+async function renderMarkdownToPdf(mdPath: string, outPdf: string, title: string, browser: any, opts: { compact?: boolean } = {}) {
   const rawMd = await Deno.readTextFile(mdPath);
   const { md: mdWithPh, sources: mermaidSources } = injectMermaidPlaceholders(rawMd);
   const body = await marked.parse(mdWithPh, { gfm: true });
 
+  const css = opts.compact ? COMPACT_STYLE : STYLE;
   const html = `<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"/><title>${title}</title><style>${STYLE}</style></head><body>${body}</body></html>`;
+<html lang="en"><head><meta charset="utf-8"/><title>${title}</title><style>${css}</style></head><body>${body}</body></html>`;
 
   const page = await browser.newPage();
   await page.setContent(html, { waitUntil: "domcontentloaded" });
@@ -114,10 +131,13 @@ async function renderMarkdownToPdf(mdPath: string, outPdf: string, title: string
     await new Promise((r) => setTimeout(r, 800));
   }
 
+  const margin = opts.compact
+    ? { top: "12mm", bottom: "12mm", left: "12mm", right: "12mm" }
+    : { top: "18mm", bottom: "18mm", left: "14mm", right: "14mm" };
   const pdfBuf = await page.pdf({
     format: "A4",
     printBackground: true,
-    margin: { top: "18mm", bottom: "18mm", left: "14mm", right: "14mm" },
+    margin,
   });
   await page.close();
   await Deno.writeFile(outPdf, pdfBuf);
@@ -125,7 +145,7 @@ async function renderMarkdownToPdf(mdPath: string, outPdf: string, title: string
 }
 
 const root = new URL(".", import.meta.url).pathname;
-const targets: Array<{ md: string; pdf: string; title: string }> = [
+const targets: Array<{ md: string; pdf: string; title: string; compact?: boolean }> = [
   {
     md: `${root}FINAL-TECHNICAL-DOCUMENTATION.md`,
     pdf: `${root}FINAL-TECHNICAL-DOCUMENTATION.pdf`,
@@ -140,6 +160,7 @@ const targets: Array<{ md: string; pdf: string; title: string }> = [
     md: `${root}CLOSE-OUT-REPORT.md`,
     pdf: `${root}CLOSE-OUT-REPORT.pdf`,
     title: "Close-Out Report",
+    compact: true,
   },
 ];
 
@@ -157,7 +178,7 @@ const browser = await puppeteer.launch({
 });
 
 for (const t of targets) {
-  await renderMarkdownToPdf(t.md, t.pdf, t.title, browser);
+  await renderMarkdownToPdf(t.md, t.pdf, t.title, browser, { compact: t.compact });
 }
 
 await browser.close();
