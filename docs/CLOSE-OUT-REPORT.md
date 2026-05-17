@@ -110,8 +110,6 @@ The Pre-IPO Perpetuals marketplace addresses these through its single-validator 
 | Resource | Link |
 |----------|------|
 | Project Repository | [github.com/dextrlabs-dev/Pre-IPO-Perpetuals-Cardano](https://github.com/dextrlabs-dev/Pre-IPO-Perpetuals-Cardano) |
-| Technical Architecture | [Technical_Documentation_Pre-IPO_Marketplace.pdf](https://github.com/dextrlabs-dev/Pre-IPO-Perpetuals-Cardano/blob/main/Technical_Documentation_Pre-IPO_Marketplace_-_Trade_Private_Company_Valuations_on_Cardano.pdf) |
-| Project Initiation | [Initiation_Document_Pre-IPO_Marketplace.pdf](https://github.com/dextrlabs-dev/Pre-IPO-Perpetuals-Cardano/blob/main/Initiation_Document_Pre-IPO_Marketplace_-_Trade_Private_Company_Valuations_on_Cardano.pdf) |
 | MVP Technical Documentation | [docs/MVP-TECHNICAL-DOCUMENTATION.md](https://github.com/dextrlabs-dev/Pre-IPO-Perpetuals-Cardano/blob/main/docs/MVP-TECHNICAL-DOCUMENTATION.md) |
 | Final Technical Documentation | [docs/FINAL-TECHNICAL-DOCUMENTATION.md](https://github.com/dextrlabs-dev/Pre-IPO-Perpetuals-Cardano/blob/main/docs/FINAL-TECHNICAL-DOCUMENTATION.md) |
 | Post-Launch Operations | [docs/POST-LAUNCH-OPERATIONS.md](https://github.com/dextrlabs-dev/Pre-IPO-Perpetuals-Cardano/blob/main/docs/POST-LAUNCH-OPERATIONS.md) |
