@@ -121,4 +121,4 @@ The Pre-IPO Perpetuals marketplace addresses these through its single-validator 
 
 ## Project Close-out Video
 
-`[Close-out video URL to be added once recorded]`
+[https://youtu.be/DrKNIKBUV9c](https://youtu.be/DrKNIKBUV9c)
